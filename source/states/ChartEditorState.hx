@@ -341,7 +341,7 @@ class ChartEditorState extends GameState
         var menuFile:UIMenuDropdown = menuBar.addDropdown('File', ['New', 'Save', 'Save As', 'Load', 'Exit']);
         menuFile.onMenuClicked = index -> {
             if (index == 4)
-                GameState.switchState(new PlayState(), true, true);
+                GameState.switchState(() -> new PlayState(), true, true);
         }
 
         menuBar.addDropdown('Edit', ['Copy', 'Paste', 'Undo', 'Redo']);

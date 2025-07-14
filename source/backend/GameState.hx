@@ -1,5 +1,7 @@
 package backend;
 
+import states.PlayState;
+import flixel.util.typeLimit.NextState;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxState;
@@ -12,19 +14,20 @@ class GameState extends FlxTransitionableState
 {
     // CLASS
 
-    public static inline function switchState(state:FlxState, transIn:Bool = true, transOut:Bool = true)
+    public static inline function switchState(nextState:NextState, transIn:Bool = true, transOut:Bool = true)
     {
         FlxTransitionableState.skipNextTransIn = !transOut;
         FlxTransitionableState.skipNextTransOut = !transIn;
 
-        if (state == FlxG.state)
-            FlxG.resetState();
-        else
-            FlxG.switchState(() -> state);
+        FlxG.switchState(nextState);
     }
 
     public static inline function resetState(transIn:Bool = true, transOut:Bool = true)
-        switchState(FlxG.state, transIn, transOut);
+    {
+        FlxTransitionableState.skipNextTransIn = !transOut;
+        FlxTransitionableState.skipNextTransOut = !transIn;
+        FlxG.resetState();
+    }
 
     public static inline function pauseGame()
     {

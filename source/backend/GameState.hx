@@ -14,20 +14,22 @@ class GameState extends FlxTransitionableState
 {
     // CLASS
 
-    public static inline function switchState(nextState:NextState, transIn:Bool = true, transOut:Bool = true)
+    public static inline function switchState(nextState:NextState = null, transIn:Bool = true, transOut:Bool = true)
     {
         FlxTransitionableState.skipNextTransIn = !transOut;
         FlxTransitionableState.skipNextTransOut = !transIn;
+
+        if (nextState == null)
+        {
+            FlxG.resetState();
+            return;
+        }
 
         FlxG.switchState(nextState);
     }
 
     public static inline function resetState(transIn:Bool = true, transOut:Bool = true)
-    {
-        FlxTransitionableState.skipNextTransIn = !transOut;
-        FlxTransitionableState.skipNextTransOut = !transIn;
-        FlxG.resetState();
-    }
+        switchState(null, transIn, transOut);
 
     public static inline function pauseGame()
     {

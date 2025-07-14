@@ -125,6 +125,9 @@ class PlayState extends GameState
 		}
 		if (controls.PAUSE)
 			pause();
+		
+		if (FlxG.keys.justPressed.SEVEN)
+			GameState.switchState(() -> new ChartEditorState(), true, true);
 	}
 
 	public function pause()

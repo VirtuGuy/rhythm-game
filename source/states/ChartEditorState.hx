@@ -207,7 +207,7 @@ class ChartEditorState extends GameState
 
         // Cursor
         var mouseX:Float = FlxG.mouse.x - grid.x;
-        var mouseY:Float = FlxG.mouse.y + (camFollow.y - FlxG.height / 2) - grid.y;
+        var mouseY:Float = FlxG.mouse.y - grid.y;
         cursorSpr.x = getXPos(Math.floor(mouseX / gridSize) * gridSize);
         cursorSpr.y = getYPos(Math.floor(mouseY / gridSize) * gridSize);
 
@@ -219,6 +219,43 @@ class ChartEditorState extends GameState
             cursorSpr.y = getYPos(0);
         else if (cursorSpr.y > getYPos(msToGrid(getSongEnd())) - gridSize)
             cursorSpr.y = getYPos(msToGrid(getSongEnd())) - gridSize;
+
+        // Note placement
+        if (FlxG.mouse.justPressed || FlxG.mouse.justPressedRight)
+        {
+            var time:Float = gridToMS(cursorSpr.y - grid.y);
+            var direction:NoteDirection = getGridDir(cursorSpr.x);
+            var length:Float = 0;
+
+            var noteData:NoteData = { t: time, d: direction, l: length }
+            var chartNotes:Array<NoteData> = Song.getNotes(chart, PlayState.diff);
+
+            if (FlxG.mouse.justPressed)
+            {
+                if (mouseX < 0 || mouseX > grid.width) return;
+                if (chartNotes.contains(noteData)) return;
+                chartNotes.push(noteData);
+                chartNotes.sort((note1, note2) -> return FlxSort.byValues(FlxSort.ASCENDING, note1.t, note2.t));
+            }
+            else
+            {
+                for (note in notes.members)
+                {
+                    if (!FlxG.mouse.overlaps(note)) continue;
+
+                    for (data in chartNotes)
+                    {
+                        if (data.t == note.time && data.d == note.direction)
+                        {
+                            chartNotes.remove(data);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            updateSection();
+        }
     }
 
     function reloadGrid()
@@ -362,6 +399,12 @@ class ChartEditorState extends GameState
 
     function msToGrid(ms:Float):Float
         return ms / ((conductor.stepCrotchet * Constants.STEPS_PER_SECTION) / sectionSize);
+
+    function gridToMS(y:Float):Float
+        return y * ((conductor.stepCrotchet * Constants.STEPS_PER_SECTION) / sectionSize);
+
+    function getGridDir(x:Float):NoteDirection
+        return Std.int((x - grid.x) / gridSize) % Constants.NOTE_COUNT;
 
     function getSongEnd():Float
         return Math.round(song.length / conductor.stepCrotchet / Constants.STEPS_PER_BEAT) * conductor.stepCrotchet * Constants.STEPS_PER_BEAT;
